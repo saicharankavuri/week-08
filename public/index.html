@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Manage your personal budget here."> <!-- This is an SEO Change -->
+    <meta name="description" content="Manage your personal budget here."> <!-- This is an SEO Change --> 
     <title>Personal Budget</title>
     <link rel="stylesheet" href="reset.css">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="main.css"> 
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
+    <div id="chart"></div>
 
     <div class="menu" aria-label="Main Menu"> 
         <ul>
@@ -18,15 +20,15 @@
             <li><a href="https://google.com" target="_blank" rel="noopener noreferrer">Google</a></li> <!-- This is a Semantic HTML Change (taget attribute)--> <!-- This is an SEO Change --> <!-- enhances the security of the webpage-->
         </ul>
     </div>
-
+    
     <div class="hero"> 
         <h1>Personal Budget Management App </h1> <!-- This is an SEO Change -->
     </div>
-
+    
     <div class="container center"> 
-
+    
         <div class="page-area">
-
+    
             <div class="text-box">
                 <h1 id="stay-on-track-heading">Stay on track</h1><!-- This is an A11y Change -->
                     <p aria-labelledby="stay-on-track-heading"><!-- This is an A11y Change -->
@@ -52,12 +54,7 @@
                 </p>
             </div>
     
-            <div class="text-box">
-                <h1>Free</h1>
-                <p>
-                    This app is free!!! And you are the only one holding your data!
-                </p>
-            </div>
+            
     
             <div class="text-box">
                 <h1>Stay on track</h1>
@@ -90,15 +87,73 @@
                     This app is free!!! And you are the only one holding your data!
                 </p>
             </div>
+
+            <div class="text-box">
+                <h1>Free</h1>
+                <p>
+                    <canvas id="myChart" width="400" height="400"></canvas>
+                </p>
+            </div>
+            
+        
         </div>
-
+    
     </div>
-
+    
     <footer class="bottom"> <!-- This is a Semantic HTML Change -->
         <div class="center">
             <small>All rights reserved &copy; Fabio Nolasco</small><!-- This is a Semantic HTML Change -->
         </div>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js" integrity="sha512-aoTNnqZcT8B4AmeCFmiSnDlc4Nj/KPaZyB5G7JnOnUEkdNpCZs1LCankiYi01sLTyWy+m2P+W4XM+BuQ3Q4/Dg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <script>
+        var data = {
+                    data: [30, 350, 90],
+                    backgroundColor: [
+                        '#ffcd56',
+                        '#ff6384',
+                        '#36a2eb',
+                        '#fd6b19'
+                    ],
+                    labels: [
+                    'Eat out',
+                    'Rent',
+                    'Groceries'
+                    ]
+        };
+        function createChart() {
+          new Chart(myChart, {
+            type: "doughnut",
+            data: {
+                labels: data.labels,
+                datasets: [
+                {
+                    label: "Language Popularity",
+                    data: data.data,
+                },
+                ],
+            }
+            })
+        }
+        //createChart();
+
+       
+       function getBudget() {
+            axios.get('/budget')
+            .then((res) => {
+                console.log(res.data);
+                for(var i = 0; i < res.data.length; i++ ){
+                    data.data[i] = res.data.myBudget[i].budget;
+                    data.labels[i] = res.data.myBudget[i].title;
+                }
+                console.log(data.data[0]);
+                console.log(res.data.myBudget[0].budget);
+                createChart();
+            })
+        };
+        getBudget();
+    </script>
 </body>
 </html>
