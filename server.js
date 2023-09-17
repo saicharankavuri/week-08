@@ -1,5 +1,5 @@
 // Budget API
-
+const fs = require('fs');
 const express = require('express');
 //const cors = require('cors');
 const app = express();
@@ -15,27 +15,15 @@ app.get('/', express.static('public'))
 //     console.log('Listening at 3000x')
 // })
 //app.use(cors());
-
-const budget = {
-    myBudget: [
-        {
-            title: 'Eat out!!',
-            budget: 250
-        },
-        {
-            title: 'Rent',
-            budget: 275
-        },
-        {
-            title: 'Grocery',
-            budget: 10
-        },
-    ]
-};
+var data;
+fs.readFile('data.json', 'utf8', (err, file) => {
+    data = file;
+    return;
+})
 
 
 app.get('/budget', (req, res) => {
-    res.json(budget);
+    res.send(data);
 });
 
 app.listen(port, () => {
