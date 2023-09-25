@@ -1,11 +1,11 @@
 // Budget API
 const fs = require('fs');
 const express = require('express');
-//const cors = require('cors');
+const cors = require('cors');
 const app = express();
-const port = 3000;
+const port = 4000;
 
-app.use('/', express.static('public'))
+// app.use('/', express.static('public'))
 
 // app.get('/hello', (req,res) => {
 //     res.send('Hello World!!');
@@ -14,7 +14,7 @@ app.use('/', express.static('public'))
 // app.listen(port, () => {
 //     console.log('Listening at 3000x')
 // })
-//app.use(cors());
+app.use(cors());
 var data;
 fs.readFile('data.json', 'utf8', (err, file) => {
     data = file;
