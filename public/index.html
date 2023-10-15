@@ -109,9 +109,11 @@
     <script>
         const getData = async () => {
             var data;
-            var r = await axios.get('/budget');
-            //console.log(res);
-            return r.data.myBudget;
+            var r = await axios.get('/chart-data');
+            var res = await axios.get('/budget');
+            console.log(r.data);
+            console.log(res.data.myBudget);
+            return r.data;
         };
 
         const Chart_create = async () => {
@@ -121,62 +123,54 @@
             //console.log(temp);
             console.log(data);
             // Set up the dimensions and radius for the pie chart
-            var width = 400;
-            var height = 400;
-            var radius = Math.min(width, height) / 2;
+            const width = 400;
+            const height = 400;
+            const radius = Math.min(width, height) / 2;
 
             // Create an SVG element
-            var svg = d3.select("#chart")
+            const svg = d3.select("#chart")
                 .append("svg")
                 .attr("width", width)
                 .attr("height", height)
                 .append("g")
-                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
-            // Define a color scale
-            var color = d3.scaleOrdinal()
-                .range(["#ffcd56", "#ff6384", "#36a2eb", "#fd6b19", "#000080", "#800080", "#808080", "#a52a2a", "#5f9ea0"]);
-
-            // Define the pie layout
-            var pie = d3.pie()
-                .value(function(d) { return d.budget; });
+                .attr("transform", `translate(${width / 2},${height / 2})`);
 
             // Create an arc generator
-            var arc = d3.arc()
+            const arc = d3.arc()
                 .innerRadius(0)
                 .outerRadius(radius);
 
+            // Define a color scale based on the "color" property in your data
+            const color = d3.scaleOrdinal()
+                .domain(data.map(d => d.title))
+                .range(data.map(d => d.color));
+
+            // Define the pie layout
+            const pie = d3.pie()
+                .value(d => d.relatedValue);
+
             // Bind the data to the SVG elements
-            var arcs = svg.selectAll("arc")
+            const arcs = svg.selectAll("arc")
                 .data(pie(data))
                 .enter()
                 .append("g");
 
             // Append the arcs to the SVG and add colors
             arcs.append("path")
-                .attr("d", arc)
-                .attr("fill", function(d) { return color(d.data.title); });
+                .attr("d", d => arc(d))
+                .attr("fill", d => color(d.data.title));
 
             // Add labels to the arcs
             arcs.append("text")
-                .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+                .attr("transform", d => `translate(${arc.centroid(d)})`)
                 .attr("text-anchor", "middle")
-                .text(function(d) { return d.data.title; });
+                .text(d => d.data.title);
         }
-       Chart_create();
+        document.addEventListener('DOMContentLoaded', Chart_create);
 
         let data_p= {
                     data: [],
-                    backgroundColor: [
-                        '#ffcd56',
-                        '#ff6384',
-                        '#36a2eb',
-                        '#fd6b19',
-                        "#000080", 
-                        "#800080", 
-                        "#808080", 
-                        "#a52a2a"
-                    ],
+                    backgroundColor: [],
                     labels: []
         };
         function createChart() {
@@ -194,18 +188,16 @@
             })
         }
         //createChart();
-
-       
        function getBudget() {
-            axios.get('/budget')
+            axios.get('/chart-data')
             .then((res) => {
-                console.log(res.data.myBudget.length);
-                for(var i = 0; i < res.data.myBudget.length; i++ ){
-                    data_p.data.push(res.data.myBudget[i].budget);
-                    data_p.labels.push(res.data.myBudget[i].title);
+                
+                for(var i = 0; i < res.data.length; i++ ){
+                    data_p.data.push(res.data[i].relatedValue);
+                    data_p.backgroundColor.push(res.data[i].color);
+                    data_p.labels.push(res.data[i].title);
                 }
-                //console.log(data);
-                console.log(res.data.myBudget[0].budget);
+            
                 createChart();
             })
         };
